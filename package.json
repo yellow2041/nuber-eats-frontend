@@ -3,21 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@apollo/client": "^3.7.3",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.11",
-    "@types/react": "^18.0.26",
+    "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.10",
-    "react": "^18.2.0",
+    "@types/react-router-dom": "^5.3.3",
+    "apollo": "^2.34.0",
+    "autoprefixer": "^10.4.13",
+    "graphql": "^16.6.0",
+    "postcss": "^8.4.20",
+    "react": "^18.0.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.41.5",
+    "react-router-dom": "^5.3.4",
     "react-scripts": "5.0.1",
+    "tailwindcss": "^3.2.4",
     "typescript": "^4.9.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "tailwind:build": "npx tailwindcss-cli@latest build -i src/styles/tailwind.css -o src/styles/styles.css",
+    "start": "npm run tailwind:build & react-scripts start",
+    "apollo:codegen": "apollo client:codegen src/__generated__ --target=typescript --outputFlat",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -39,5 +50,26 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "overrides": {
+    "@apollo/client": {
+      "react": "$react"
+    },
+    "@apollographql/graphql-language-service-interface": {
+      "graphql": "$graphql"
+    },
+    "@apollographql/graphql-language-service-parser": {
+      "graphql": "$graphql"
+    },
+    "@apollographql/graphql-language-service-types": {
+      "graphql": "$graphql"
+    },
+    "@apollographql/graphql-language-service-utils": {
+      "graphql": "$graphql"
+    }
+  },
+  "devDependencies": {
+    "@graphql-codegen/typescript": "^2.8.7",
+    "@graphql-codegen/typescript-operations": "^2.5.12"
   }
 }
