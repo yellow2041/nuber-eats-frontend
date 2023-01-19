@@ -1,6 +1,6 @@
 import { ApolloError, gql, useMutation } from "@apollo/client";
 import React from "react";
-import Helmet from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { appendErrors, useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
 import { Button } from "../components/button";
