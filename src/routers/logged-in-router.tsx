@@ -1,21 +1,33 @@
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
-import { isLoggedInVar } from "../apollo";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
+import { Header } from "../components/header";
+import { useMe } from "../hooks/useMe";
+import { NotFound } from "../pages/404";
+import { Restaurants } from "./client/restaurants";
+import { ConfirmEmail } from "./user/confirm-email";
+import { EditProfile } from "./user/edit-profile";
 
-const ME_QUERY = gql`
-  query meQuery {
-    me {
-      id
-      email
-      role
-      verified
-    }
-  }
-`;
+const ClientRoutes = [
+  <Route key={1} path="/" exact>
+    <Restaurants />
+  </Route>,
+  <Route key={2} path="/confirm" exact>
+    <ConfirmEmail />
+  </Route>,
+  <Route key={3} path="/edit-profile" exact>
+    <EditProfile />
+  </Route>,
+];
 
 export const LoggedInRouter = () => {
-  const { data, loading, error } = useQuery(ME_QUERY);
-  console.log(data);
+  const { data, loading, error } = useMe();
+  console.log(data, loading, error);
   if (!data || loading || error) {
     return (
       <div className="h-screen flex justify-center items-center">
@@ -24,8 +36,13 @@ export const LoggedInRouter = () => {
     );
   }
   return (
-    <div>
-      <h1>{data.me.role}</h1>
-    </div>
+    <Router>
+      <Header />
+      <Switch>
+        {data.me.role === "Client" && ClientRoutes}
+        {/* <Redirect to="/" /> */}
+        <NotFound />
+      </Switch>
+    </Router>
   );
 };

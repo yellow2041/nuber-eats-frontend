@@ -46,7 +46,7 @@ export const CreateAccount = () => {
       createAccount: { ok },
     } = data;
     if (ok) {
-      history.push("/login");
+      history.push("/");
     }
   };
   const [
@@ -72,7 +72,7 @@ export const CreateAccount = () => {
         <title>Create Account | Nuber eats</title>
       </Helmet>
       <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
-        <img src={nuberLogo} className="w-52 mb-5" />
+        <img src={nuberLogo} className="w-52 mb-5" alt="Nuber Eats" />
         <h4 className="w-full font-medium text-left text-3xl mb-5">
           Let's get started
         </h4>
@@ -131,7 +131,7 @@ export const CreateAccount = () => {
         </form>
         <div>
           Already have an account?{" "}
-          <Link to="/login" className="text-lime-600 hover:underline">
+          <Link to="/" className="text-lime-600 hover:underline">
             Create an Account
           </Link>
         </div>
