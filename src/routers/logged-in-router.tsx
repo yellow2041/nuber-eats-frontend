@@ -32,14 +32,13 @@ const ClientRoutes = [
   <Route key={5} path="/category/:slug" exact>
     <Category />
   </Route>,
-  <Route key={5} path="/restaurant/:id" exact>
+  <Route key={5} path="/restaurants/:id" exact>
     <Restaurant />
   </Route>,
 ];
 
 export const LoggedInRouter = () => {
   const { data, loading, error } = useMe();
-  console.log(data, loading, error);
   if (!data || loading || error) {
     return (
       <div className="h-screen flex justify-center items-center">
