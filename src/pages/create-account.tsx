@@ -12,7 +12,7 @@ import {
 } from "../__generated__/createAccountMutation";
 import { UserRole } from "../__generated__/globalTypes";
 
-const CREATE_ACCOUNT_MUTATION = gql`
+export const CREATE_ACCOUNT_MUTATION = gql`
   mutation createAccountMutation($createAccountInput: CreateAccountInput!) {
     createAccount(input: $createAccountInput) {
       ok
@@ -46,6 +46,7 @@ export const CreateAccount = () => {
       createAccount: { ok },
     } = data;
     if (ok) {
+      alert("Account Created! Log in now!");
       history.push("/");
     }
   };

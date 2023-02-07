@@ -13,7 +13,7 @@ import {
   loginMutationVariables,
 } from "../__generated__/loginMutation";
 
-const LOGIN_MUTATION = gql`
+export const LOGIN_MUTATION = gql`
   mutation loginMutation($loginInput: LoginInput!) {
     login(input: $loginInput) {
       ok
@@ -42,6 +42,7 @@ export const Login = () => {
     const {
       login: { error, ok, token },
     } = data;
+    console.log(data);
     if (ok && token) {
       localStorage.setItem(LOCALSTORAGE_TOKEN, token);
       authToken(token);
@@ -88,17 +89,19 @@ export const Login = () => {
               pattern:
                 /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
             })}
+            required
             name="email"
             type="email"
             placeholder="Email"
             className="input"
           />
-          {errors.email?.message && (
-            <FormError errorMessage={errors.email.message} />
-          )}
           {errors.email?.type === "pattern" && (
             <FormError errorMessage={"Please enter a valid email"} />
           )}
+          {errors.email?.message && (
+            <FormError errorMessage={errors.email.message} />
+          )}
+
           <input
             {...register("password", {
               required: "Password is required",

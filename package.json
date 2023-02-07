@@ -75,12 +75,13 @@
   },
   "devDependencies": {
     "@graphql-codegen/typescript": "^2.8.7",
-    "@graphql-codegen/typescript-operations": "^2.5.12"
+    "@graphql-codegen/typescript-operations": "^2.5.12",
+    "mock-apollo-client": "^1.2.1"
   },
   "jest": {
     "collectCoverageFrom": [
       "./src/components/**/*.tsx",
-      "./src/pages/**/*/tsx",
+      "./src/pages/**/*.tsx",
       "./src/routers/**/*.tsx"
     ]
   }
