@@ -17,10 +17,11 @@ const httpLink = createHttpLink({
 });
 
 const authLink = setContext((_, { headers }) => {
+  // console.log("token: " + token, "authToken: " + authToken());
   return {
     headers: {
       ...headers,
-      "x-jwt": token || "",
+      "x-jwt": authToken() || "",
     },
   };
 });

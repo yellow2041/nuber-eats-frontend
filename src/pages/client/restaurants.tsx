@@ -54,7 +54,6 @@ export const Restaurants = () => {
   const { register, handleSubmit, getValues } = useForm<IFormProps>();
   const history = useHistory();
   const onSearchSubmit = () => {
-    console.log(getValues());
     const { searchTerm } = getValues();
     history.push({
       pathname: "/search",

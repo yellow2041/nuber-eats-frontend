@@ -3,7 +3,11 @@ import React from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter as Router } from "react-router-dom";
 
-const AllTheProviders: React.FC = ({ children }) => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const AllTheProviders: React.FC<Props> = ({ children }: Props) => {
   return (
     <HelmetProvider>
       <Router>{children}</Router>

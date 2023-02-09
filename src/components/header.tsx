@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 
 export const Header: React.FC = () => {
   const { data } = useMe();
-  console.log(data);
   return (
     <>
       {!data?.me.verified && (

@@ -339,7 +339,7 @@ export const useMe = () => {
     }
   };
   ```
-# 19. Restaurants
+  # 19. Restaurants
 ## Trouble shooting
 N/A
 ## 내용 정리
@@ -763,3 +763,118 @@ import { render, waitFor } from "../../test-utils";
       </ApolloProvider>
     );
 ```
+# 21. E2E React testing
+## Trouble shooting
+### 로그인시 Loading... 화면에서 다음 화면으로 넘어가지 않는 현상
+> 새로고침해야 home으로 연결되고 최초 로그인시에는 Loading... 화면에서 멈춰있고, apollo에서 useMe query에 대해 Forbidden resource 응답.
+- apollo 요청시 x-jwt 헤더에 전역으로 관리하는 token 변수인 authToken을 사용해야 하는데 로컬스토리지의 토큰값을 사용하여 빈 토큰값 전달.
+- `makeVar()`로 가져온 전역변수토큰값 이용하도록 헤더 수정
+> apollo.ts의 setContext()에서 `console.log("token: " + token, "authToken: " + authToken());` 찍었을 때 token만 null인 이유는....?
+
+## 내용 정리
+### Cypress
+> E2E test를 위한 툴
+- 설치
+  ```
+  npm install cypress --save-dev
+  ```
+- 실행
+  ```
+  npx cypress open
+  ```
+- 설정
+  - cypress/tsconfig.json
+    ```json
+    {
+      "compilerOptions": {
+        "allowJs": true,
+        "baseUrl": "../node_modules",
+        "types": ["cypress"],
+        "outDir": "#"
+      },
+
+      "include": ["./**/*.*"]
+    }
+    ```
+- cypress/e2e/[testfile].cy.ts 파일 안에 테스트 내용 작성(jest와 비슷한 형태)
+- intercept
+  - 서버로 보내는 요청을 중간에 가로챌 수 있다. 여기선 계정 생성이 실제로 되지 않으면서 응답을 받을 수 있다.
+  ```javascript
+  user.intercept("http://localhost:3030/graphql", (req) => {
+    const { operationName } = req.body;
+    if (operationName && operationName === "createAccountMutation") {
+      req.reply((res) => {
+        res.send({
+          data: {
+            createAccount: {
+              ok: true,
+              error: null,
+              __typename: "CreateAccountOutput",
+            },
+          },
+        });
+      });
+    }
+  });
+  ```
+### Cypress Testing Library
+> cypress 테스트를 더 편리하게 해주는 라이브러리
+- 사용 전
+  ```javascript
+  describe("First Test", () => {
+    it("can fill out the form", () => {
+      cy.visit("/")
+        .get('[name="email"]')
+        .type("1234512345")
+        .get('[name="password"]')
+        .get(".text-lg")
+        .should("not.have.class", "pointer-events-none");
+    });
+  });
+  ```
+- 사용 후
+  - find~함수 자동완성 가능
+  ```javascript
+  describe("First Test", () => {
+    it("can fill out the form", () => {
+      cy.visit("/");
+      cy.findByPlaceholderText(/Email/i).type("asdf@adfda.co");
+      cy.findByPlaceholderText(/password/i).type("1234512345");
+      cy.findByRole("button").should("not.have.class", "pointer-events-none");
+    });
+  });
+  ```
+### Cypress custom commands
+- 자주 사용되는 공통적인 테스트 부분을 명령어로 민들 수 있다.
+- cypress/support/commands.ts 파일 내부에 명령어를 정의하면 된다.
+  ```javascript
+  Cypress.Commands.add("assertLoggedIn", () => {
+    cy.window().its("localStorage.nuber-token").should("be.a", "string");
+  });
+
+  Cypress.Commands.add("assertLoggedOut", () => {
+    cy.window().its("localStorage.nuber-token").should("be.undefined");
+  });
+
+  Cypress.Commands.add("login", (email, password) => {
+    // @ts-ignore
+    cy.assertLoggedOut();
+    cy.visit("/");
+    cy.title().should("eq", "Login | Nuber eats");
+    cy.findByPlaceholderText(/Email/i).type(email);
+    cy.findByPlaceholderText(/password/i).type(password);
+    cy.findByRole("button")
+      .should("not.have.class", "pointer-events-none")
+      .click();
+    // @ts-ignore
+    cy.assertLoggedIn();
+  });
+  ```
+- 사용
+  ```javascript
+  it("can fill out the form", () => {
+    // @ts-ignore
+    user.login("yellow2041@naver.com", "1212121212");
+    user.window().its("localStorage.nuber-token").should("be.a", "string");
+  });
+  ```

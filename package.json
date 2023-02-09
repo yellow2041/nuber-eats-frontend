@@ -76,6 +76,8 @@
   "devDependencies": {
     "@graphql-codegen/typescript": "^2.8.7",
     "@graphql-codegen/typescript-operations": "^2.5.12",
+    "@testing-library/cypress": "^9.0.0",
+    "cypress": "^12.5.1",
     "mock-apollo-client": "^1.2.1"
   },
   "jest": {
