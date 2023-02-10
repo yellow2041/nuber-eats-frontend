@@ -656,6 +656,21 @@ video {
   transition-duration: 150ms;
 }
 
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 1536px
+}
+
+.link{
+  --tw-text-opacity: 1;
+  color: rgba(101, 163, 13, var(--tw-text-opacity))
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

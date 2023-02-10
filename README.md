@@ -339,7 +339,7 @@ export const useMe = () => {
     }
   };
   ```
-  # 19. Restaurants
+# 19. Restaurants
 ## Trouble shooting
 N/A
 ## 내용 정리
@@ -876,5 +876,23 @@ import { render, waitFor } from "../../test-utils";
     // @ts-ignore
     user.login("yellow2041@naver.com", "1212121212");
     user.window().its("localStorage.nuber-token").should("be.a", "string");
+  });
+  ```
+# 20. OWNER DASHBOARD
+## Trouble shooting
+### 백엔드 typeORM 잘못 작성한 후기,,,
+- 강의때와 typeorm의 버전이 달라서 쿼리 작성하는 방식이 조금 달라졌다.
+  > 오랜만에 백엔드를 수정하다보니 강의 그대로 적고 왜 안되는지 30분 넘게 헤맨듯ㅠ
+- 잘못된 코드
+  ```javascript
+  const restaurants = await this.restaurants.find({
+    where: { ownerId: owner.id },
+  });
+  ```
+  - ownerId는 테이블 간의 관계를 정의하기 위해 사용하는 것인데, 이를 기준으로 사용하여 쿼리 실행시 백엔드에서 ownerId가 없다는 에러가 발생하고 있었다. 아래와 같이 owner object의 id를 기준으로 레스토랑을 찾아오도록 수정하였다.
+- 수정 코드
+  ```javascript
+  const restaurants = await this.restaurants.find({
+    where: { owner: { id: owner.id } },
   });
   ```
