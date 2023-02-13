@@ -878,7 +878,7 @@ import { render, waitFor } from "../../test-utils";
     user.window().its("localStorage.nuber-token").should("be.a", "string");
   });
   ```
-# 20. OWNER DASHBOARD
+# 22. OWNER DASHBOARD
 ## Trouble shooting
 ### 백엔드 typeORM 잘못 작성한 후기,,,
 - 강의때와 typeorm의 버전이 달라서 쿼리 작성하는 방식이 조금 달라졌다.
@@ -896,3 +896,52 @@ import { render, waitFor } from "../../test-utils";
     where: { owner: { id: owner.id } },
   });
   ```
+## 학습 내용
+### AWS s3를 이용한 파일업로드 구현(BE)
+- aws에 AmazonS3FullAccess정책을 가진 사용자 생성
+- `aws-sdk` 설치
+- `nest g mo uploads`으로 모듈 생성 후 `controllers: [UploadsController]` 추가
+- controller 생성
+  ```javascript
+  import {
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+  } from '@nestjs/common';
+  import { FileInterceptor } from '@nestjs/platform-express';
+  import * as AWS from 'aws-sdk';
+
+  const BUCKET_NAME = 'janabinubereats';
+
+  @Controller('uploads')
+  export class UploadsController {
+    @Post('')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadFile(@UploadedFile() file) {
+      AWS.config.update({
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID,
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+        },
+      });
+      try {
+        // AWS.config.update({ region: 'ap-northeast-2' });
+        const objectName = Date.now() + file.originalname;
+        await new AWS.S3()
+          .putObject({  // 초기에 createBucket 실행 필요
+            Body: file.buffer,
+            Bucket: BUCKET_NAME,
+            Key: objectName,
+            ACL: 'public-read',
+          })
+          .promise();
+        const url = `https://${BUCKET_NAME}.s3.amazonaws.com/${objectName}`;
+        return { url };
+      } catch (e) {
+        return null;
+      }
+    }
+  }
+  ```
+- 포스트맨에서 Header의 Content-Type을 multipart/form-data로 설정 후 Body의 form-data로 key를 file로하여 사진 업로드 테스트 가능
