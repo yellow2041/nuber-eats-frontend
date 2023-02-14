@@ -896,6 +896,26 @@ import { render, waitFor } from "../../test-utils";
     where: { owner: { id: owner.id } },
   });
   ```
+### createRestaurant mutation 실행 시 name 글자 수 제한
+> 백엔드의 Restaurant의 name에 `@Length(5)`을 적용해두고 자꾸 5글자 미만으로 요청을 보내고 있었다...🤦‍♀️
+- 프론트에서 createRestaurant input의 name을 3글자로 채워서 보낼 시
+  ```
+  index.ts:59 Uncaught (in promise) ApolloError: Bad Request Exception
+    at new ApolloError (index.ts:59:1)
+    at QueryManager.ts:256:1
+    at both (asyncMap.ts:30:1)
+    at asyncMap.ts:19:1
+    at new Promise (<anonymous>)
+    at Object.then (asyncMap.ts:19:1)
+    at Object.next (asyncMap.ts:31:1)
+    at notifySubscription (module.js:132:1)
+    at onNotify (module.js:176:1)
+    at SubscriptionObserver.next (module.js:225:1)
+  ```
+  에러 발생...
+  - apollo 요청시 뮤테이션이 잘못되었을 때 400을 던진다고 한다.
+- 백엔드에 최소글자 설정을 해둬서 발생한 에러...
+  > 에러 내용이 친절하지 않네요... mutation 오타난줄알고 열심히 찾았는데...ㅠ.ㅠ
 ## 학습 내용
 ### AWS s3를 이용한 파일업로드 구현(BE)
 - aws에 AmazonS3FullAccess정책을 가진 사용자 생성
@@ -945,3 +965,63 @@ import { render, waitFor } from "../../test-utils";
   }
   ```
 - 포스트맨에서 Header의 Content-Type을 multipart/form-data로 설정 후 Body의 form-data로 key를 file로하여 사진 업로드 테스트 가능
+### 레스토랑 추가 후 refetch를 이용한 refresh 방법
+- apollo는 레스토랑 추가 후 원래 페이지로 돌아가면 기존 캐시에 있던 정보들을 그대로 보여주기 때문에 실제로 서버엔 레스토랑이 추가되었지만 화면엔 추가되기 전의 상태를 보여준다.
+- `refetchQueries`를 이용하여 특정 뮤테이션이 발생하였을때 특정 쿼리를 refetch해오도록 만들 수 있다.
+  - 하지만 레스토랑의 갯수가 많아지는 경우 refetch하여 가져와야 할 데이터가 많아지기때문에 효율적이지 않다.
+    - 효율적으로 바꾸는것은 뒷부분에 진행 예정
+  ```javascript
+  const [createRestaurantMutation, { data }] = useMutation<
+    createRestaurant,
+    createRestaurantVariables
+  >(CREATE_RESTAURANT_MUTATION, {
+    onCompleted,
+    refetchQueries: [{ query: MY_RESTAURANTS_QUERY }],
+  });
+  const { register, getValues, formState, handleSubmit } = useForm<IFormProps>({
+    mode: "onChange",
+  });
+  ```
+### readQuery와 writeQuery를 이용한 fake refresh 방법
+- readQuery로 아폴로 캐시에 저장되어있는 기존 쿼리 결과를 읽어오고, writeQuery로 추가된 정보를 캐시에 기록하여 api호출 없이 새 데이터를 추가할 수 있다.
+- fake로 writeQuery에 add된 레스토랑 결과를 추가할 때는 아폴로 캐시에 저장된 형태와 동일한 형태로 저장하면 된다.
+  ```javascript
+  const client = useApolloClient();
+  const history = useHistory();
+
+  const onCompleted = (data: createRestaurant) => {
+    const {
+      createRestaurant: { ok, restaurantId },
+    } = data;
+    if (ok) {
+      const { file, name, categoryName, address } = getValues();
+      setUploading(false);
+      const queryResult = client.readQuery({
+        query: MY_RESTAURANTS_QUERY,
+      });
+      client.writeQuery({
+        query: MY_RESTAURANTS_QUERY,
+        data: {
+          ...queryResult.myRestaurants,
+          myRestaurants: [
+            {
+              address,
+              category: {
+                name: categoryName,
+                __typename: "Category",
+                __proto__: Object,
+              },
+              coverImg: imageUrl,
+              id: restaurantId,
+              isPromoted: false,
+              name,
+              __typename: "Restaurant",
+            },
+            ...queryResult.myRestaurants.restaurants,
+          ],
+        },
+      });
+      history.push("/");
+    }
+  };
+  ```
