@@ -1025,3 +1025,82 @@ import { render, waitFor } from "../../test-utils";
     }
   };
   ```
+### 메뉴별 세부 옵션 추가
+- `Date.now()`를 key 값으로 활용하여 옵션 추가 및 삭제
+  ```javascript
+  const onSubmit = () => {
+    const { name, price, description, ...rest } = getValues();
+    const optionObjects = optionsNumber.map((theId) => ({
+      name: rest[`${theId}-optionName`],
+      extra: +rest[`${theId}-optionExtra`],
+    }));
+    createDishMutation({
+      variables: {
+        input: {
+          name,
+          price: +price,
+          description,
+          restaurantId: +restaurantId,
+          options: optionObjects,
+        },
+      },
+    });
+    history.goBack();
+  };
+  const onAddOptionClick = () => {
+    setOptionsNumber((current) => [Date.now(), ...current]);
+  };
+  const onDeleteClick = (idToDelete: Number) => {
+    setOptionsNumber((current) => current.filter((id) => id !== idToDelete));
+    unregister(`${idToDelete}-optionName`);
+    unregister(`${idToDelete}-optionExtra`);
+  };
+  ```
+- 추가 및 삭제하는 부분
+  ```javascript
+  {optionsNumber.length !== 0 &&
+    optionsNumber.map((id) => (
+      <div key={id} className="mt-5">
+        <input
+          {...register(`${id}-optionName`)}
+          className="py-2 px-4 focus:outline-none mr-3 focus:border-gray-600 border-2"
+          type="text"
+          placeholder="Option Name"
+        />
+        <input
+          {...register(`${id}-optionExtra`)}
+          className="py-2 px-4 focus:outline-none mr-3 focus:border-gray-600 border-2"
+          type="number"
+          min={0}
+          placeholder="Option Extra"
+        />
+        <span
+          className="cursor-pointer text-white bg-red-500 ml-3 py-3 px-4 mt-5 bg-"
+          onClick={() => onDeleteClick(id)}
+        >
+          Delete Option
+        </span>
+      </div>
+    ))}
+  ```
+### Victory를 활용한 차트 만들기
+- [Victory](https://formidable.com/open-source/victory/)를 설치하여 차트를 만들 수 있다.
+- 그래프 종류도 다양하고 속성도 많아서 공식문서 참고하면 좋을듯.
+- 예시
+  - 막대그래프
+    ```javascript
+    <VictoryChart domainPadding={20}>
+      <VictoryAxis
+        tickFormat={(step) => `${step / 1000}K`}
+        dependentAxis
+      />
+      <VictoryAxis label="Days" tickFormat={(step) => `Day ${step}`} />
+      <VictoryBar data={chartData} />
+    </VictoryChart>
+    ```
+    ![image](/image/1.png)
+  - 원형그래프
+    ```javascript
+    <VictoryPie data={chartData} />
+    ```
+    ![image](/image/2.png)
