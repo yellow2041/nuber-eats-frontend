@@ -1104,3 +1104,5 @@ import { render, waitFor } from "../../test-utils";
     <VictoryPie data={chartData} />
     ```
     ![image](/image/2.png)
+# 24. Making an order
+## Trouble shooting
