@@ -1,4 +1,5 @@
 import { restaurant_restaurant_restaurant_menu_options } from "../__generated__/restaurant";
+import React from "react";
 
 interface IDishProps {
   id?: number;
@@ -8,9 +9,10 @@ interface IDishProps {
   isCustomer?: Boolean;
   orderStarted?: Boolean;
   options?: restaurant_restaurant_restaurant_menu_options[] | null;
+  isSelected?: boolean;
   addItemToOrder?: (dishId: number) => void;
   removeFromOrder?: (dishId: number) => void;
-  isSelected?: boolean;
+  children?: React.ReactNode;
 }
 
 export const Dish: React.FC<IDishProps> = ({
@@ -24,6 +26,7 @@ export const Dish: React.FC<IDishProps> = ({
   addItemToOrder,
   removeFromOrder,
   isSelected,
+  children: dishOptions,
 }) => {
   const onClick = () => {
     if (orderStarted) {
@@ -37,7 +40,6 @@ export const Dish: React.FC<IDishProps> = ({
   };
   return (
     <div
-      onClick={onClick}
       className={`px-8 pt-4 pb-8 border transition-all ${
         isSelected
           ? "border-gray-800 cursor-not-allowed"
@@ -45,19 +47,26 @@ export const Dish: React.FC<IDishProps> = ({
       }`}
     >
       <div className="mb-5">
-        <h3 className="text-lg font-medium mb-5">{name}</h3>
+        <h3 className="text-lg font-medium flex items-center">
+          {name}{" "}
+          {orderStarted && (
+            <button
+              className={`ml-3 py-1 px-3 focus:outline-none text-sm text-white ${
+                isSelected ? "bg-red-500" : " bg-lime-600"
+              }`}
+              onClick={onClick}
+            >
+              {isSelected ? "Remove" : "Add"}
+            </button>
+          )}
+        </h3>
         <h4 className="font-medium">{description}</h4>
       </div>
       <span>{price}원</span>
       {isCustomer && options && options?.length !== 0 && (
         <div>
-          <h5 className="mt-5 mb-3 font-medium">Dish Options:</h5>
-          {options?.map((option, index) => (
-            <span className="flex items-center" key={index}>
-              <h6 className="mr-2">{option.name}</h6>
-              <h6 className="text-sm opacity-75">({option.extra}원)</h6>
-            </span>
-          ))}
+          <h5 className="mt-8 mb-3 font-medium">Dish Options:</h5>
+          <div className="grid gap-2 justify-start">{dishOptions}</div>
         </div>
       )}
     </div>
