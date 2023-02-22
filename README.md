@@ -1106,3 +1106,4 @@ import { render, waitFor } from "../../test-utils";
     ![image](/image/2.png)
 # 24. Making an order
 ## Trouble shooting
+## 학습 내용
